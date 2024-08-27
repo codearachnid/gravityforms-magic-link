@@ -45,8 +45,12 @@ add_filter('gform_notification', 'gform_add_magic_link_to_notification', 10, 3);
 function gform_add_magic_link_to_notification( $notification, $form, $entry ) {
 
 	// filter by form id or use gform_notification_{form_id}
-	$form_id = apply_filters( 'gform_magic_link_notification_form_id', 'all' );
-	if( $form_id != 'all' || ( is_array($form_id) && !in_array( $form->id, $form_id ) ) || ( !empty($form_id) && $form_id != $form->id ) ){
+	$filter_form_id = apply_filters( 'gform_magic_link_notification_form_id', 'all' );
+	$form_id = rgar( $form, 'id' );
+	if( $filter_form_id != 'all' && ( 
+		( is_array($filter_form_id) && !in_array( $form_id, $filter_form_id ) ) || 
+		( !empty($filter_form_id) && $filter_form_id != $form_id )
+	)) {
 		return $notification;
 	}
 
@@ -54,9 +58,12 @@ function gform_add_magic_link_to_notification( $notification, $form, $entry ) {
 	
     // Loop through the form fields to find the one with the "magic_link" key
     foreach ($form['fields'] as $field) {
-        if (isset($field->allowsPrepopulate) && $field->allowsPrepopulate && $field->inputName === 'magic_link') {
+		$field_id = rgar( $field, 'id' );
+		$field_allowsPrepopulate = rgar( $field, 'allowsPrepopulate' );
+		$field_inputName = rgar( $field, 'inputName' );
+        if (isset( $field_allowsPrepopulate ) && $field_allowsPrepopulate && $field_inputName === 'magic_link') {
             // Get the email from the entry based on the field ID
-            $user_email = rgar( $entry, strval( $field->id ) );
+            $user_email = rgar( $entry, $field_id );
             break;
         }
     }
@@ -88,8 +95,6 @@ function gform_add_magic_link_to_notification( $notification, $form, $entry ) {
 	
     return $notification;
 }
-
-
 
 add_action( 'admin_post_nopriv_magic_link', 'gform_handle_magic_link_login' );
 add_action( 'admin_post_magic_link', 'gform_handle_magic_link_login' );
