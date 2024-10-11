@@ -4,7 +4,7 @@ Plugin Name: Gravity Forms: Magic Link
 Plugin URI: https://github.com/codearachnid/gform-magic-link/
 Description: Gravity Forms Magic Link functionality allows you to send a magic link to a registered email for an automatic login
 Author: Timothy Wood (@codearachnid)
-Version: 1.0.0
+Version: 1.1.0
 Requires at least: 6.0
 Requires PHP: 7.3
 Tested up to: 6.1.1
@@ -15,7 +15,7 @@ Text Domain: gform_magic_link
 */
 
 /*
-	Copyright 2022 Timothy Wood
+	Copyright 2024 Timothy Wood
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License, version 2, as
@@ -66,6 +66,11 @@ function gform_add_magic_link_to_notification( $notification, $form, $entry ) {
             $user_email = rgar( $entry, $field_id );
             break;
         }
+    }
+
+    // email not found - prevent notification from sending
+    if( empty($user_email) ){
+        return $notification;
     }
 	
 	$user = get_user_by( 'email', sanitize_email( $user_email ) );
